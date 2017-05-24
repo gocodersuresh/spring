@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	
+	
+	<!-- looks for all @componet annoted classes -->
+	<context:component-scan base-package="com.*" />
+	
+	
+	<!-- Whatever declared using @Autowired will be initialized and instantiated by container -->
+	<context:annotation-config />
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<property name="url" value="jdbc:h2:~/test" />
+		<property name="username" value="" />
+		<property name="password" value="" />
+	</bean>
+	
+	<bean id="entityManagerFactory" 
+			class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"			
+            p:dataSource-ref="dataSource"
+            p:packagesToScan="com.*">
+            <property name="jpaProperties">
+        <props>
+            <prop key="hibernate.hbm2ddl.auto">update</prop><!-- create-drop  -->
+        </props>
+    </property>
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				
+				<property name="showSql" value="false" /><!-- shows sql queries on console -->
+				<property name="generateDdl" value="false" />
+			</bean>
+		</property>
+		
+	</bean>
+
+	<!-- Transactions -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<!-- enables all operations in one transaction or rollbacks if any single operation fails -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>
